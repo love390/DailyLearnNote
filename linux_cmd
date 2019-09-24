@@ -4,3 +4,4 @@ sed
 uniq
 wc
 sort
+head/tail
