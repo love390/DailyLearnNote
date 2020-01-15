@@ -12,12 +12,55 @@
        我写了个自定义rule结合OutputCapture来统计查询语句数量，循环控制及总运行时间
        @After,@AfterClass,@Before,@BeforeClass,@Test,@RunWith简单，只是进行回顾
 ---
-#### 2.使用Junit进行模拟登录后的Web接口测试
-      + 需要用到MockMvc来进行Web接口测试
-             需要进行初始化——>
-                注入WebApplicationContext
-                初始化方法中(@Before)：this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).apply(springSecurity()).build();
-      + 权限相关：
-               使用@WithMockUser等系列注解模拟登录
+#### 2.使用Junit进行模拟登录后的Web接口测试(更多Mock操作详见mock.md)
+
+1：启动容器进行测试
+
+```kotlin
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("classpath:config/context.xml")
+@WebAppConfiguration
+public class IncotermsRestServiceTest {
+    @Autowired
+    private WebApplicationContext wac;
+    private MockMvc mockMvc;
+    @Before
+    public void setup() {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();   //构造MockMvc
+    }
+    ...
+}
+
+注意：
+    (1)@WebAppConfiguration：测试环境使用，用来表示测试环境使用的ApplicationContext将是WebApplicationContext类型的；value指定web应用的根；
+    (2)通过@Autowired WebApplicationContext wac：注入web环境的ApplicationContext容器；
+    (3)然后通过MockMvcBuilders.webAppContextSetup(wac).build()创建一个MockMvc进行测试；
+```
+
+2：不启动容器模拟测试（速度快）
+
+```java
+public class PricingExportResultsRestServiceTest {
+    @InjectMocks
+    private PricingExportResultsRestService pricingExportResultsRestService;
+    @Mock
+    private ExportRateScheduleService exportRateScheduleService;
+    @Mock
+    private PricingUrlProvider pricingUrlProvider;
+    private MockMvc mockMvc;
+    @Before
+    public void setup() {
+        //初始化可换成@RunWith(MockitoJUnitRunner.class)，当需要使用其他Runner时使用以下的initMocks
+        MockitoAnnotations.initMocks(this);
+        mockMvc = MockMvcBuilders.standaloneSetup(pricingExportResultsRestService).build();  //构造MockMvc
+    }
+    ...
+}
+
+主要是两个步骤：
+(1)首先自己创建相应的控制器，注入相应的依赖
+(2)通过MockMvcBuilders.standaloneSetup模拟一个Mvc测试环境，通过build得到一个MockMvc
+```
+
 ---
 #### 3.使用Junit进行高并发测试
