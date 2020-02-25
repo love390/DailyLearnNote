@@ -10,4 +10,7 @@
 - 2.直接开启hinernate缓存无效，包括查询缓存和二级缓存，除了开启之外，需要加上@cacheAble或指定策略javax.persistence.sharedCache.mode
 - 3.查询缓存hibernate.cache.use_query_cache配合@QueryHint
 - 4.集合缓存@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE) ，加在实体的集合属性上
+- 5.使用Jcache且开启二级缓存后需要配置"default-query-results-region"和"default-update-timestamps-region",
+        只是写在echach.xml可能无效，会报warn日志并自动创建默认缓存策略，需要添加"hibernate.javax.cache.uri"指定配置文件，
+        详细配置见org.hibernate.cache.jcache.ConfigSettings。
 - 详见：https://blog.csdn.net/czp11210/article/details/51996217
